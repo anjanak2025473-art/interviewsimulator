@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Interview Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 450px;
+            height: 700px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #4a90e2;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .bot {
+            background: #e6e6e6;
+            align-self: flex-start;
+        }
+
+        .user {
+            background: #4a90e2;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 10px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.skip {
+            background: #999;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">AI INTERVIEWER</div>
+
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+        <select id="interviewType">
+            <option value="">Select Interview</option>
+            <option value="hr">HR Interview</option>
+            <option value="technical">Technical Interview</option>
+            <option value="behavioral">Behavioral Interview</option>
+        </select>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user_input" placeholder="Type your answer..." />
+        <button onclick="sendMessage()">Send</button>
+        <button class="skip" onclick="skipQuestion()">Skip</button>
+    </div>
+</div>
+
+<script>
+    const interviewQuestions = {
+        hr: [
+            "Tell me about yourself.",
+            "What are your strengths?",
+            "What are your weaknesses?",
+            "Why should we hire you?",
+            "Where do you see yourself in 5 years?",
+            "Why do you want to work here?",
+            "Describe a time you overcame a challenge.",
+            "How do you handle stress?",
+            "Tell me about a team conflict you resolved.",
+            "What motivates you at work?"
+        ],
+        technical: [
+            "Explain HTML, CSS, and JavaScript.",
+            "What is the difference between == and ===?",
+            "What is a database?",
+            "Explain OOP concepts.",
+            "What is REST API?",
+            "What is the difference between frontend and backend?",
+            "Explain closures in JavaScript.",
+            "What is responsive design?",
+            "Describe the difference between SQL and NoSQL.",
+            "Explain the concept of version control (Git)."
+        ],
+        behavioral: [
+            "Describe a challenging situation you faced.",
+            "How do you handle stress?",
+            "Tell me about a time you failed and learned from it.",
+            "Describe a time you worked in a team successfully.",
+            "How do you manage deadlines?",
+            "Give an example of your leadership experience.",
+            "Tell me about a time you had to solve a conflict.",
+            "Describe a situation where you took initiative.",
+            "How do you handle criticism?",
+            "Give an example of creative problem solving."
+        ]
+    };
+
+    let questions = [];
+    let index = 0;
+    let skipsRemaining = 5;
+
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("user_input");
+    const interviewType = document.getElementById("interviewType");
+
+    function addMessage(text, type) {
+        const msg = document.createElement("div");
+        msg.className = `message ${type}`;
+        msg.innerText = text;
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    interviewType.addEventListener("change", () => {
+        chatBox.innerHTML = "";
+        index = 0;
+        skipsRemaining = 5;
+        questions = interviewQuestions[interviewType.value];
+
+        if (questions) {
+            addMessage("Interview started. Answer the questions below.", "bot");
+            addMessage(questions[index], "bot");
+        }
+    });
+
+    function sendMessage() {
+        if (input.value.trim() === "" || questions.length === 0) return;
+
+        addMessage(input.value, "user");
+        input.value = "";
+        nextQuestion();
+    }
+
+    function skipQuestion() {
+        if (questions.length === 0) return;
+
+        if (skipsRemaining > 0) {
+            addMessage("Question skipped.", "user");
+            skipsRemaining--;
+            nextQuestion();
+        } else {
+            addMessage("You have reached the maximum number of skips (5).", "bot");
+        }
+    }
+
+    function nextQuestion() {
+        index++;
+        setTimeout(() => {
+            if (index < questions.length) {
+                addMessage(questions[index], "bot");
+            } else {
+                addMessage("Interview completed. Thank you for your time!", "bot");
+            }
+        }, 500);
+    }
+
+    input.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") sendMessage();
+    });
+</script>
+
+</body>
+</html>
